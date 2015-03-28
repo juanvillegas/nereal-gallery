@@ -1,0 +1,38 @@
+/*
+ * Site styles
+ *
+ * */
+#container {
+    max-width: 998px;
+    margin: 0 auto;
+}
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+}
+#gallery {
+    height: 500px;
+}
+
+/*
+ * Gallery Styles
+ *
+ * */
+.nereal {
+    overflow: hidden;
+}
+.nereal > div {
+    height: 100%;
+}
+.nereal > div img {
+    margin: 0 auto;
+}
+.nereal > div.portrait {
+    width: 50%;
+    float: left;
+}
+.nereal > div.landscape {
+    width: 100%;
+}
