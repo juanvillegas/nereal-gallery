@@ -13,7 +13,14 @@
 
     // Create the defaults once
     var pluginName = "nerealGallery",
-        defaults = {};
+        defaults = {
+            prevNav: '<a href="#" class="nav nav-prev">Prev</a>',
+            nextNav: '<a href="#" class="nav nav-next">Next</a>',
+            breakpoints: {
+                mobile: 740,
+                tablet: 940
+            }
+        };
 
     // The actual plugin constructor
     function Gallery(element, options) {
@@ -22,77 +29,214 @@
         this.settings = $.extend({}, defaults, options);
         this._defaults = defaults;
         this._name = pluginName;
+
+        this.instance_settings = {};
+
+        this.groups_count = 0;
+
         this.init();
     }
 
     // Avoid Gallery.prototype conflicts
     $.extend(Gallery.prototype, {
         init: function () {
-            var $e = this.$element;
-
             this.$element.addClass("nereal");
+
+            this.setup_once();
 
             this.sort_images();
 
-            this.$element.find(".group_1").addClass("current");
+            this.start_slideshow();
+        },
+        start_slideshow: function() {
+            var $this = this;
 
-            // temp navigation
-            this.$element.on("click", function (e) {
-                var current_class = $e.find(".current").first().data("group");
-                current_class++;
+            if ($this.instance_settings.slides.find(".current").length == 0) {
+                $this.$element.find(".group_1").addClass("current");
+                $this.instance_settings.slides.find(".group_1").fadeIn();
+            }
+        },
+        /**
+         * This method should be called only once on initialization. Sets up a few things that are required
+         * for the plugin. (global events, navigation, cache some elements)
+         */
+        setup_once: function() {
+            var $this = this;
 
-                $e.find(".current").removeClass("current").fadeOut(500, function(){
-                    $e.find(".group_" + current_class).addClass("current").fadeIn();
-                })
+            // listen for resize
+            $(window).on("resize", function() {
+                $this.handle_window_resize($this);
+            });
+
+            // create navigation
+            var $next = $($this.settings.nextNav),
+                $prev = $($this.settings.prevNav);
+
+            $this.$element.append($prev);
+            $this.$element.append($next);
+
+            $this.setup_navigation();
+
+            // cache some elements
+            $this.instance_settings.slides = $this.$element.find(".slides");
+            if ($this.instance_settings.slides.length == 0) {
+                console.log("Nereal: no slides found.");
+            }
+
+
+        },
+
+        /**
+         * Callback to be invoked every time the screen is resized
+         * @param $context Should always be a reference to the plugin instance.
+         */
+        handle_window_resize: function($context) {
+            var window_width = $(window).width(),
+                old_breakpoint = $context.instance_settings.breakpoint,
+                breakpoint;
+
+            // detect what kind of device context we are in.
+            if (window_width > $context.settings.breakpoints.tablet) {
+                breakpoint = "desktop";
+            } else if (window_width > $context.settings.breakpoints.mobile) {
+                breakpoint = "tablet";
+            } else {
+                breakpoint = "mobile";
+            }
+            $context.instance_settings.breakpoint = breakpoint;
+
+            $context.instance_settings.window_width = window_width;
+
+            // if the context has changed, sort the images again.
+            if (old_breakpoint != $context.instance_settings.breakpoint) {
+                $context.sort_images();
+                $context.start_slideshow();
+            }
+        },
+
+        setup_navigation: function() {
+            var $this = this;
+            this.$element.find(".nav-next").on("click", function(e){
+                $this.handle_next_nav($this, e);
+            });
+            this.$element.find(".nav-prev").on("click", function(e){
+                $this.handle_prev_nav($this, e);
             });
         },
+
+        handle_next_nav: function($context, e) {
+            var current_group = $context.$element.find(".current").first().data("group");
+
+            if ($context.groups_count == current_group) {
+                current_group = 1;
+            } else {
+                current_group++;
+            }
+
+            $context.$element.find(".current").removeClass("current").fadeOut(500, function() {
+                $context.$element.find(".group_" + current_group).addClass("current").fadeIn();
+            });
+            e.preventDefault();
+        },
+
+        handle_prev_nav: function($context, e){
+            var current_group = $context.$element.find(".current").first().data("group");
+
+            if (current_group == 1) {
+                current_group = $context.groups_count;
+            } else {
+                current_group--;
+            }
+
+            $context.$element.find(".current").removeClass("current").fadeOut(500, function() {
+                $context.$element.find(".group_" + current_group).addClass("current").fadeIn();
+            });
+            e.preventDefault();
+        },
+
         sort_images: function () {
             var cursor,
                 next_sibling,
-                group_id = 1;
+                group_count = 0;
 
-            cursor = this.$element.children("div").first();
+            cursor = this.instance_settings.slides.children().first();
 
-            // asign the groups
+            // asign the groups_count
             do {
-                next_sibling = cursor.next();
-                cursor = this._set_group(cursor, next_sibling, group_id);
+                group_count++;
 
-                group_id++;
+                next_sibling = cursor.next();
+                this._clear_group(cursor, next_sibling);
+                cursor = this._set_group(cursor, next_sibling, group_count);
             } while (cursor != false);
 
+            this.groups_count = group_count;
         },
-        _set_group: function (current, next, group_id) {
-            if (current.hasClass("landscape")) {
-                // L case => landscape images go alone
-                current.addClass("group_" + group_id);
-                current.data("group", group_id);
-                return next;
-            } else if (next.hasClass("landscape")) {
-                // P + L case => result is a portrait alone
-                current.addClass("group_" + group_id);
-                current.data("group", group_id);
-                // ...?
-                return next;
-            } else {
-                // P + P case => portraits side by side
-                current.addClass("group_" + group_id);
-                current.data("group", group_id);
-                next.addClass("group_" + group_id);
-                next.data("group", group_id);
 
-                var next_sibling = next.next();
-                if (next_sibling.length == 0) {
-                    return false;
+        /**
+         * Clears all the classes added to the slides by the plugin
+         * @param cursor the current item
+         * @param next the next item
+         * @private
+         */
+        _clear_group: function(cursor, next) {
+            var allClasses = ["alone", "sidebyside"],
+                i;
+
+            // clear all groups
+            for (i = 1; i <= this.groups_count; i++) {
+                allClasses.push("group_" + i);
+            }
+
+            cursor.removeClass(allClasses.join(" "));
+            next.removeClass(allClasses.join(" "));
+        },
+        /**
+         * Set the appropiate group and classes to given slide and its next sibling
+         * @param current the current cursor
+         * @param next the next sibling
+         * @param group_id the current group id
+         * @returns bool\elem the next element to consider
+         * @private
+         */
+        _set_group: function (current, next, group_id) {
+            var next_sibling;
+            if (this.instance_settings.breakpoint == "mobile") {
+                // set one per group for mobile..
+                current.addClass("alone group_" + group_id);
+                current.data("group", group_id);
+                next_sibling = next;
+            } else {
+                if (current.hasClass("landscape")) {
+                    // L case => landscape images go alone
+                    current.addClass("group_" + group_id);
+                    current.data("group", group_id);
+                    next_sibling = next;
+                } else if (next.hasClass("landscape")) {
+                    // P + L case => result is a portrait alone
+                    current.addClass("alone group_" + group_id);
+                    current.data("group", group_id);
+                    // ...?
+                    next_sibling = next;
                 } else {
-                    return next_sibling;
+                    // P + P case => portraits side by side
+                    current.addClass("sidebyside group_" + group_id);
+                    current.data("group", group_id);
+                    next.addClass("sidebyside group_" + group_id);
+                    next.data("group", group_id);
+                    next_sibling = next.next();
                 }
             }
+
+            if (next_sibling.length == 0) {
+                return false;
+            } else {
+                return next_sibling;
+            }
+
         }
     });
 
-    // A really lightweight plugin wrapper around the constructor,
-    // preventing against multiple instantiations
     $.fn[ pluginName ] = function ( options, arg ) {
         return this.each(function() {
             if ( !$.data( this, "plugin_" + pluginName ) ) {

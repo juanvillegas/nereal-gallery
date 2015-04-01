@@ -5,34 +5,106 @@
 #container {
     max-width: 998px;
     margin: 0 auto;
-}
-img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    max-height: 100%;
-}
-#gallery {
-    height: 500px;
+    border:1px solid red;
 }
 
-/*
- * Gallery Styles
- *
- * */
-.nereal {
-    overflow: hidden;
+.mygallery {
+    margin-top: 50px !important;
 }
-.nereal > div {
-    height: 100%;
-}
-.nereal > div img {
+
+.mygallery,
+#gallery {
+    border:1px solid green;
     margin: 0 auto;
-}
-.nereal > div.portrait {
-    width: 50%;
-    float: left;
-}
-.nereal > div.landscape {
     width: 100%;
 }
+.mygallery .nav,
+#gallery .nav {
+    background: rgba(255, 255, 255, 0.8);
+}
+.mygallery .nav img,
+#gallery .nav img {
+    display: block;
+}
+@media screen and (min-width: 941px) {
+    .mygallery,
+    #gallery {
+        height: 550px;
+        width: 940px;
+    }
+}
+@media screen and (min-width: 741px) and (max-width: 940px) {
+    .mygallery,
+    #gallery {
+        height: 450px;
+    }
+}
+@media screen and (max-width: 740px) {
+    .mygallery,
+    #gallery {
+        height: 400px;
+    }
+}
+
+
+/*
+ *
+ * Gallery Styles
+ *
+ */
+.nereal {
+    position: relative;
+}
+.nereal .slides {
+    height: 100%;
+    overflow: hidden;
+}
+.nereal .slides .current {
+    display: block;
+}
+.nereal .slides > div {
+    height: 100%;
+    display: none;
+}
+.nereal .slides > div img {
+    margin: 0 auto;
+    /*display: block;*/
+    max-width: 100%;
+    /*height: auto;*/
+    max-height: 100%;
+}
+.nereal .slides > div.landscape {
+    width: 100%;
+}
+.nereal .nav {
+    display: block;
+    text-decoration: none;
+    padding: 3px 5px;
+    top: 50%;
+    position: absolute;
+    margin-top: -5px;
+}
+.nereal .nav.nav-next {
+    right: 0;
+}
+.nereal .nav.nav-prev {
+    left: 0;
+}
+
+.nereal .slides > div.alone {
+    width: 100%;
+    text-align: center;
+}
+.nereal .slides > div.landscape {
+    text-align: center;
+}
+.nereal .slides > div.sidebyside {
+    text-align:center;
+}
+
+/*@media screen and (min-width: 769px) {*/
+    .nereal .slides > div.sidebyside {
+        width: 50%;
+        float: left;
+    }
+/*}*/

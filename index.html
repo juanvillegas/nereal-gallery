@@ -13,22 +13,73 @@
 
     <div id="container">
         <div class="inner">
+            <h1>Nereal gallery demo</h1>
+            <p>Gallery (<span style="color:green;">outlined in green</span>)deployed in a <span style="color:red;">998px outer container outlined in red</span></p>
+            <p>Breakpoints set to 740 mobile (height: 400px, width: 100%), 940 tablet (height:450px, width:100%), above 940 desktop (height: 550px, width: 940px).</p>
 
             <div id="gallery">
-                <div class="portrait">
-                    <img src="img/1.jpg" alt=""/>
+                <div class="slides">
+                    <div class="portrait">
+                        <img src="img/set2/1.jpg" alt=""/>
+                    </div>
+                    <div class="landscape">
+                        <img src="img/set2/9.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/3.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/4.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/2.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/5.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/6.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/7.jpg" alt=""/>
+                    </div>
+                    <div class="landscape">
+                        <img src="img/set2/8.jpg" alt=""/>
+                    </div>
                 </div>
-                <div class="portrait">
-                    <img src="img/2.jpg" alt=""/>
-                </div>
-                <div class="landscape">
-                    <img src="img/3.jpg" alt=""/>
-                </div>
-                <div class="landscape">
-                    <img src="img/4.jpg" alt=""/>
-                </div>
-                <div class="portrait">
-                    <img src="img/5.jpg" alt=""/>
+            </div>
+
+            <p>Breakpoints set to 700 mobile (height: 400px, width: 100%), 940 tablet (height:450px, width:100%), above 940 desktop (height: 550px, width: 940px).</p>
+
+            <div class="mygallery">
+                <div class="slides">
+                    <div class="portrait">
+                        <img src="img/set2/1.jpg" alt=""/>
+                    </div>
+                    <div class="landscape">
+                        <img src="img/set2/9.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/3.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/4.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/2.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/5.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/6.jpg" alt=""/>
+                    </div>
+                    <div class="portrait">
+                        <img src="img/set2/7.jpg" alt=""/>
+                    </div>
+                    <div class="landscape">
+                        <img src="img/set2/8.jpg" alt=""/>
+                    </div>
                 </div>
             </div>
             
@@ -37,8 +88,19 @@
 
     <script>
         jQuery(document).ready(function($){
-            var plugin = $("#gallery").nerealGallery();
-//            plugin.nerealGallery("method_1", "123");
+            var plugin = $("#gallery").nerealGallery({
+                prevNav: '<a href="#" class="nav nav-prev"><img src="img/left.png"></a>',
+                nextNav: '<a href="#" class="nav nav-next"><img src="img/right.png"></a>'
+            });
+
+            $(".mygallery").nerealGallery({
+                prevNav: '<a href="#" class="nav nav-prev"><img src="img/left.png"></a>',
+                nextNav: '<a href="#" class="nav nav-next"><img src="img/right.png"></a>',
+                breakpoints: {
+                    mobile: 700,
+                    tablet: 940
+                }
+            });
         });
     </script>
 </body>
