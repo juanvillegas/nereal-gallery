@@ -19,7 +19,9 @@
             breakpoints: {
                 mobile: 740,
                 tablet: 940
-            }
+            },
+            click_offset_left: 100,
+            click_offset_right: 100
         };
 
     // The actual plugin constructor
@@ -93,35 +95,72 @@
         handle_window_resize: function($context) {
             var window_width = $(window).width(),
                 old_breakpoint = $context.instance_settings.breakpoint,
-                breakpoint;
+                new_breakpoint;
 
             // detect what kind of device context we are in.
             if (window_width > $context.settings.breakpoints.tablet) {
-                breakpoint = "desktop";
+                new_breakpoint = "desktop";
             } else if (window_width > $context.settings.breakpoints.mobile) {
-                breakpoint = "tablet";
+                new_breakpoint = "tablet";
             } else {
-                breakpoint = "mobile";
+                new_breakpoint = "mobile";
             }
-            $context.instance_settings.breakpoint = breakpoint;
+            $context.instance_settings.breakpoint = new_breakpoint;
 
             $context.instance_settings.window_width = window_width;
 
-            // if the context has changed, sort the images again.
-            if (old_breakpoint != $context.instance_settings.breakpoint) {
+            // has the context changed?
+            if (old_breakpoint != new_breakpoint) {
+                // if so, trigger specific per context actions here
                 $context.sort_images();
                 $context.start_slideshow();
+
+                if (new_breakpoint != "mobile") {
+                    // we are going to tablet/desktop mode, so stop setting the height
+                    // manually, and leave it to css instead.
+                    $context.$element.css("height", "");
+                }
             }
         },
 
         setup_navigation: function() {
             var $this = this;
-            this.$element.find(".nav-next").on("click", function(e){
+
+            $this.$element.find(".nav-next").on("click", function(e){
                 $this.handle_next_nav($this, e);
             });
-            this.$element.find(".nav-prev").on("click", function(e){
+            $this.$element.find(".nav-prev").on("click", function (e) {
                 $this.handle_prev_nav($this, e);
             });
+
+            this.$element.find(".slides").on("click", function (e) {
+                var left,
+                    top;
+
+                if (e.offsetX != undefined && e.offsetY != undefined) {
+                    left = e.offsetX;
+                    top = e.offsetY;
+                } else {
+                    left = e.pageX - $(this).offset().left;
+                    top = e.pageY - $(this).offset().top;
+                }
+
+                if (left <= $this.settings.click_offset_left) {
+                    $this.handle_prev_nav($this, e);
+                } else {
+                    $this.handle_next_nav($this, e);
+                }
+            });
+        },
+
+        handle_slide_changed: function() {
+            var current_slide = this.instance_settings.slides.find(".current"),
+                current_slide_height;
+
+            if (this.instance_settings.breakpoint == 'mobile') {
+                current_slide_height = current_slide.children("img").height();
+                this.$element.height(current_slide_height);
+            }
         },
 
         handle_next_nav: function($context, e) {
@@ -135,7 +174,10 @@
 
             $context.$element.find(".current").removeClass("current").fadeOut(500, function() {
                 $context.$element.find(".group_" + current_group).addClass("current").fadeIn();
+
+                $context.handle_slide_changed();
             });
+
             e.preventDefault();
         },
 
@@ -150,7 +192,10 @@
 
             $context.$element.find(".current").removeClass("current").fadeOut(500, function() {
                 $context.$element.find(".group_" + current_group).addClass("current").fadeIn();
+
+                $context.handle_slide_changed();
             });
+
             e.preventDefault();
         },
 
