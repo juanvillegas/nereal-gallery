@@ -43,7 +43,8 @@ class NerealGallery {
 	public function handle_add_shortcode($atts) {
 		$atts = shortcode_atts(array(
 			'posts' => false, // array with WP_Post's ID of type "attachment" to use in the gallery
-			'post_id' => false, // WP_Post ID
+			'post_id' => false, // WP_Post ID,
+			'plugin_id' => uniqid('nereal-'),
 			'image_size' => 'full' // WP_Post ID
 		), $atts);
 
@@ -124,7 +125,7 @@ class NerealGallery {
 		wp_enqueue_style('nereal_gallery_css');
 	}
 
-	private function fill_atts_defaults( $atts ) {
+	private function fill_atts_defaults($atts) {
 		$defaults = array(
 			'image_size' => 'full',
 			'plugin_id' => uniqid('nereal-'),
