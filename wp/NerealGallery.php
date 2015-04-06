@@ -3,6 +3,7 @@
 class NerealGallery {
 
 
+	protected static $error_no_posts_available = 'No posts available to use in the shortcode. Upload some attachments or specify "posts" attribute.';
 	protected static $error_no_post_available = 'No post_id available to shortcode. Is this single()?';
 
 	protected static $instance = false;
@@ -59,10 +60,16 @@ class NerealGallery {
 			// no custom photos provided, default => get from post
 			$children_attachments = get_attached_media('image', $atts['post_id']);
 
-			$atts['posts'] = array();
-			foreach ($children_attachments as $attachment) {
-				$atts['posts'][] = $attachment->ID;
+			if (count($children_attachments) == 0) {
+				return static::$error_no_posts_available;
+			} else {
+				$atts['posts'] = array();
+				foreach ($children_attachments as $attachment) {
+					$atts['posts'][] = $attachment->ID;
+				}
 			}
+		} else {
+			$atts['posts'] = explode(',', $atts['posts']);
 		}
 
 		return $this->render($atts);
