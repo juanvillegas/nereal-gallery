@@ -25,11 +25,6 @@
     }
 }
 
-/*@media screen and (max-width: 740px) {
-    #gallery {
-        height: 400px;
-    }
-}*/
 
 
 /*
@@ -68,9 +63,7 @@
 }
 .nereal .slides > div img {
     margin: 0 auto;
-    /*display: block;*/
     max-width: 100%;
-    /*height: auto;*/
     max-height: 100%;
 }
 .nereal .slides > div.landscape {
@@ -105,11 +98,6 @@
 }
 .nereal .slides > div.sidebyside {
     text-align:center;
+    width: 50%;
+    float: left;
 }
-
-/*@media screen and (min-width: 769px) {*/
-    .nereal .slides > div.sidebyside {
-        width: 50%;
-        float: left;
-    }
-/*}*/

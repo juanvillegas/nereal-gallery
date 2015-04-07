@@ -127,6 +127,8 @@ class NerealGallery {
 
 	private function fill_atts_defaults($atts) {
 		$defaults = array(
+			'posts' => array(),
+			'post_id' => get_the_ID(),
 			'image_size' => 'full',
 			'plugin_id' => uniqid('nereal-'),
 			'plugin_class' => array()
